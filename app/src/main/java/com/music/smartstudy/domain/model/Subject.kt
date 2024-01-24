@@ -10,7 +10,8 @@ import com.music.smartstudy.presentation.theme.gradient5
 data class Subject(
     val name:String,
     val goalHunter:Float,
-    val colors:List<Color>
+    val colors:List<Color>,
+    val subjectId:Int,
 ){
     companion object{
         // list of all 5 gradients user can choose in between
