@@ -27,6 +27,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,7 +42,9 @@ import com.music.smartstudy.R
 import com.music.smartstudy.domain.model.Session
 import com.music.smartstudy.domain.model.Subject
 import com.music.smartstudy.domain.model.Task
+import com.music.smartstudy.presentation.components.AddSubjectDialog
 import com.music.smartstudy.presentation.components.CountCard
+import com.music.smartstudy.presentation.components.DeleteDialog
 import com.music.smartstudy.presentation.components.SubjectCard
 import com.music.smartstudy.presentation.components.studySessionList
 import com.music.smartstudy.presentation.components.taskList
@@ -53,6 +60,7 @@ fun DashBoardScreen() {
         Subject("Chemistry", 10f, Subject.subjectCardColors[4],subjectId = 0),
         Subject("Biology", 10f, Subject.subjectCardColors[3],subjectId = 0)
     )
+    var isDeleteSessionDialog by rememberSaveable { mutableStateOf(false) }
 
     val tasklist = listOf(
         Task(
@@ -97,7 +105,6 @@ fun DashBoardScreen() {
         )
     )
 
-
     val sessions = listOf(
         Session(
             relatedToSubject = "English",
@@ -129,6 +136,16 @@ fun DashBoardScreen() {
         )
     )
 
+
+    DeleteDialog(
+        isOpen =isDeleteSessionDialog,
+        title ="Delete Session",
+        bodyText = "Are you sure, you want to delete this session? Your studied hours will be reduced " +
+                "by this session time. This action can not be undone.",
+        onDismissRequest = {isDeleteSessionDialog=false },
+        onConfirmButtonClick = {isDeleteSessionDialog=false}
+    )
+
     Scaffold(
         topBar = { DashboardTopAppBar() },
     ) { paddingValues ->
@@ -150,7 +167,7 @@ fun DashBoardScreen() {
             item {
                 SubjectCardsSection(
                     modifier = Modifier.fillMaxWidth(),
-                    subjectList = subjecListt
+                    subjectList = subjecListt,
                 )
             }
             item{
@@ -179,7 +196,7 @@ fun DashBoardScreen() {
                 emptyListText = "You don't have any recent study sessions.\n " +
                         "Start a study session to begin recording your progress.",
                 sessions = sessions,
-                onDeleteIconClick = {}
+                onDeleteIconClick = {isDeleteSessionDialog = true}
             )
         }
     }
@@ -229,8 +246,21 @@ private fun DashboardTopAppBar() {
 private fun SubjectCardsSection(
     modifier: Modifier,
     subjectList:List<Subject>,
-    emptyListText:String = "You don't have any subjects.\n Click the + button to add new subject."
+    emptyListText:String = "You don't have any subjects.\n Click the + button to add new subject.",
 ){
+
+    var isAddSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var subjectName  by remember {
+        mutableStateOf("")
+    }
+    var goalHours  by remember {
+        mutableStateOf("")
+    }
+
+    var selectedColor by remember{
+        mutableStateOf(Subject.subjectCardColors.random())
+    }
+
     Column(
         modifier = modifier
     ){
@@ -245,7 +275,7 @@ private fun SubjectCardsSection(
                  modifier = Modifier.padding(12.dp)
              )
              
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = {  isAddSubjectDialogOpen = true }) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add Subject"
@@ -281,5 +311,19 @@ private fun SubjectCardsSection(
                     )
             }
         }
+
     }
+    AddSubjectDialog(
+        isOpen = isAddSubjectDialogOpen,
+        subjectName = subjectName,
+        goalHours = goalHours,
+        onSubjectNameChange = {subjectName=it},
+        onGoalHoursChange = {goalHours=it},
+        selectedColor = selectedColor,
+        onColorChange = {selectedColor=it},
+        onDismissRequest = { isAddSubjectDialogOpen = false },
+       onConfirmButtonClick = {
+           isAddSubjectDialogOpen=false
+       }
+    )
 }
