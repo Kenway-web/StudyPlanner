@@ -60,7 +60,7 @@ fun DashBoardScreen() {
         Subject("Chemistry", 10f, Subject.subjectCardColors[4],subjectId = 0),
         Subject("Biology", 10f, Subject.subjectCardColors[3],subjectId = 0)
     )
-    var isDeleteSessionDialog by rememberSaveable { mutableStateOf(false) }
+
 
     val tasklist = listOf(
         Task(
@@ -135,6 +135,7 @@ fun DashBoardScreen() {
             sessionId = 0
         )
     )
+    var isDeleteSessionDialog by rememberSaveable { mutableStateOf(false) }
 
 
     DeleteDialog(
