@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import com.music.smartstudy.domain.model.Session
 import com.music.smartstudy.domain.model.Subject
 import com.music.smartstudy.domain.model.Task
+import com.music.smartstudy.presentation.Task.TaskScreen
 import com.music.smartstudy.presentation.dashboard.DashBoardScreen
 import com.music.smartstudy.presentation.subject.SubjectScreen
 import com.music.smartstudy.presentation.theme.SmartStudyTheme
@@ -17,7 +18,8 @@ class MainActivity : ComponentActivity() {
             SmartStudyTheme {
                 // A surface container using the 'background' color from the theme
 //                DashBoardScreen()
-                SubjectScreen()
+          //      SubjectScreen()
+                TaskScreen()
             }
         }
     }
