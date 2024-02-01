@@ -1,6 +1,7 @@
 package com.music.smartstudy.presentation.subject
 
 import android.icu.text.CaseMap.Title
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -118,17 +119,7 @@ fun SubjectScreen() {
                 scrollBehavior = scrollBehavior
             )
         },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { /*TODO*/ },
-                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add") },
-                text = { Text(text = "Add Task") },
-                expanded = isFABExpanded,
-                modifier = Modifier
-                    .offset(x = fabOffset)
 
-            )
-        }
     ) { paddingValue ->
         LazyColumn(
             state = listState,
@@ -205,12 +196,20 @@ fun SubjectScreen() {
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.headlineSmall
             )
-        },
-        actions = {
+        }, actions = {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "New Subject",
+                    modifier = Modifier
+
+                )
+            }
+
             IconButton(onClick = onDeleteButtonClick) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Subject"
+                    contentDescription = "Delete Subject",
                 )
             }
             IconButton(onClick = onEditButtonClick) {
