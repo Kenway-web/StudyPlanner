@@ -28,10 +28,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,10 +42,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.music.smartstudy.presentation.components.DeleteDialog
+import com.music.smartstudy.presentation.components.SubjectListBottomSheet
 import com.music.smartstudy.presentation.components.TaskCheckBox
+import com.music.smartstudy.presentation.components.TaskDatePicker
 import com.music.smartstudy.presentation.theme.Red
+import com.music.smartstudy.subjecListt
 import com.music.smartstudy.util.Priority
+import com.music.smartstudy.util.changeMillisToDateString
+import kotlinx.coroutines.launch
+import java.time.Instant
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(){
 
@@ -54,6 +64,15 @@ fun TaskScreen(){
     }
 
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var isDatePickerDialogOpen by rememberSaveable { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = Instant.now().toEpochMilli()
+    )
+
+    val scope = rememberCoroutineScope()
+
+    val sheetState = rememberModalBottomSheetState()
+    var isBottomSheetOpen by remember { mutableStateOf(false) }
 
     taskTitleError = when{
         title.isBlank() -> "Please Enter Task Title."
@@ -69,6 +88,31 @@ fun TaskScreen(){
                 "This action can not be undone",
         onDismissRequest = { isDeleteDialogOpen = false },
         onConfirmButtonClick = { isDeleteDialogOpen = false}
+    )
+
+    TaskDatePicker(
+        state = datePickerState,
+        isOpen = isDatePickerDialogOpen,
+        onDismissButton = {
+            isDatePickerDialogOpen  = false
+        },
+        onConfirmButtonClick = {
+            isDatePickerDialogOpen = false
+        }
+    )
+
+    SubjectListBottomSheet(
+        sheetState = sheetState,
+        isOpen = isBottomSheetOpen,
+        subjects = subjecListt,
+        onDismissRequest = {isBottomSheetOpen = false},
+        onSubjectClicked = {
+            scope.launch {
+                        sheetState.hide()
+            }.invokeOnCompletion {
+                if(!sheetState.isVisible) isBottomSheetOpen = false
+            }
+        }
     )
 
 
@@ -124,10 +168,10 @@ fun TaskScreen(){
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
-                    text = "30 August, 2023",
+                    text = datePickerState.selectedDateMillis.changeMillisToDateString(),
                     style = MaterialTheme.typography.bodyLarge
                 )
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { isDatePickerDialogOpen = true}) {
                        Icon(
                            imageVector = Icons.Default.DateRange,
                            contentDescription ="Select Due Date"
@@ -181,7 +225,7 @@ fun TaskScreen(){
                      text = "English",
                      style = MaterialTheme.typography.bodyLarge
                  )
-                 IconButton(onClick = { /*TODO*/ }) {
+                 IconButton(onClick = { isBottomSheetOpen = true}) {
                      Icon(
                          imageVector = Icons.Default.ArrowDropDown,
                          contentDescription ="Select Subject"
