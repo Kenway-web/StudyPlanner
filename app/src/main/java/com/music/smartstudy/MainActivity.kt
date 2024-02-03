@@ -7,6 +7,7 @@ import com.music.smartstudy.domain.model.Session
 import com.music.smartstudy.domain.model.Subject
 import com.music.smartstudy.domain.model.Task
 import com.music.smartstudy.presentation.Task.TaskScreen
+import com.music.smartstudy.presentation.session.SessionScreen
 import com.music.smartstudy.presentation.theme.SmartStudyTheme
 
 class MainActivity : ComponentActivity() {
@@ -17,7 +18,8 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
 //                DashBoardScreen()
           //      SubjectScreen()
-                TaskScreen()
+              //  TaskScreen()
+                SessionScreen()
             }
         }
     }
