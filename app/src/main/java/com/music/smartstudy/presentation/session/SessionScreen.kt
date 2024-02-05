@@ -40,12 +40,28 @@ import com.music.smartstudy.presentation.components.SubjectListBottomSheet
 import com.music.smartstudy.presentation.components.studySessionList
 import com.music.smartstudy.sessions
 import com.music.smartstudy.subjecListt
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
+
+
+
+@Destination
+@Composable
+fun SessionScreenRoute(
+    navigator: DestinationsNavigator
+){
+    SessionScreen(
+        onBackButtonClick = { navigator.navigateUp() }
+    )
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SessionScreen() {
+private fun SessionScreen(
+    onBackButtonClick:() -> Unit
+) {
 
     val scope = rememberCoroutineScope()
 
@@ -77,7 +93,10 @@ fun SessionScreen() {
         onConfirmButtonClick = { isDeleteDialogOpen = false}
     )
 
-    Scaffold(topBar = { SessionScreenTopBar(onBackButtonClick = {}) }) { paddingValues ->
+    Scaffold(topBar = {
+        SessionScreenTopBar(onBackButtonClick = onBackButtonClick)
+    })
+    { paddingValues ->
 
         LazyColumn(
             modifier = Modifier
@@ -128,7 +147,7 @@ private fun SessionScreenTopBar(
     onBackButtonClick: () -> Unit
 ) {
     TopAppBar(navigationIcon = {
-        IconButton(onClick = { }) {
+        IconButton(onClick =  onBackButtonClick) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "NavigateToBackScreen"

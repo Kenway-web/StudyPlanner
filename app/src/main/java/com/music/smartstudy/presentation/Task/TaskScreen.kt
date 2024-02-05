@@ -49,12 +49,33 @@ import com.music.smartstudy.presentation.theme.Red
 import com.music.smartstudy.subjecListt
 import com.music.smartstudy.util.Priority
 import com.music.smartstudy.util.changeMillisToDateString
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import java.time.Instant
 
+
+data class TaskScreenNavArgs(
+    val taskId: Int?,
+    val subjectId: Int?
+)
+
+@Destination(navArgsDelegate = TaskScreenNavArgs::class)
+@Composable
+fun TaskScreenRoute(
+    navigator: DestinationsNavigator
+){
+    TaskScreen(
+        onBackButtonClick = { navigator.navigateUp() }
+    )
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(){
+private fun TaskScreen(
+    onBackButtonClick: () -> Unit,
+){
 
     var title by remember{ mutableStateOf("") }
     var description by remember{ mutableStateOf("") }
@@ -122,7 +143,7 @@ fun TaskScreen(){
                  isTaskExist = true,
                  isComplete =false ,
                  checkBoxBorderColor = Red ,
-                 onBackButtonClick = {  },
+                 onBackButtonClick = onBackButtonClick,
                  onDeleteButtonClick = { isDeleteDialogOpen = true },
                  onCheckBoxClick = {}
              )
@@ -259,7 +280,7 @@ private fun TaskScreenTopBar(
     ) {
         TopAppBar(
             navigationIcon = {
-                    IconButton(onClick = { onBackButtonClick }) {
+                    IconButton(onClick = onBackButtonClick) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
                                 contentDescription = "Navigation Back"

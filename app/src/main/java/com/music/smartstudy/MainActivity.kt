@@ -6,20 +6,17 @@ import androidx.activity.compose.setContent
 import com.music.smartstudy.domain.model.Session
 import com.music.smartstudy.domain.model.Subject
 import com.music.smartstudy.domain.model.Task
-import com.music.smartstudy.presentation.Task.TaskScreen
-import com.music.smartstudy.presentation.session.SessionScreen
+import com.music.smartstudy.presentation.NavGraph
+import com.music.smartstudy.presentation.NavGraphs
 import com.music.smartstudy.presentation.theme.SmartStudyTheme
+import com.ramcosta.composedestinations.DestinationsNavHost
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             SmartStudyTheme {
-                // A surface container using the 'background' color from the theme
-//                DashBoardScreen()
-          //      SubjectScreen()
-              //  TaskScreen()
-                SessionScreen()
+                DestinationsNavHost(navGraph = NavGraphs.root)
             }
         }
     }

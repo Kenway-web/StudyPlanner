@@ -41,16 +41,51 @@ import com.music.smartstudy.R
 import com.music.smartstudy.domain.model.Session
 import com.music.smartstudy.domain.model.Subject
 import com.music.smartstudy.domain.model.Task
+import com.music.smartstudy.presentation.Task.TaskScreenNavArgs
 import com.music.smartstudy.presentation.components.AddSubjectDialog
 import com.music.smartstudy.presentation.components.CountCard
 import com.music.smartstudy.presentation.components.DeleteDialog
 import com.music.smartstudy.presentation.components.SubjectCard
 import com.music.smartstudy.presentation.components.studySessionList
 import com.music.smartstudy.presentation.components.taskList
+import com.music.smartstudy.presentation.destinations.SessionScreenRouteDestination
+import com.music.smartstudy.presentation.destinations.SubjectScreenRouteDestination
+import com.music.smartstudy.presentation.destinations.TaskScreenRouteDestination
+import com.music.smartstudy.presentation.subject.SubjectScreenNavArgs
+import com.music.smartstudy.presentation.subject.SubjectScreenRoute
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+
+
+@Destination(start = true)
+@Composable
+fun DashBoardScreenRoute(
+    navigator: DestinationsNavigator
+) {
+    DashBoardScreen(onSubjectCardClick = { subjectId ->
+        subjectId?.let {
+            val navArg = SubjectScreenNavArgs(subjectId = subjectId)
+            navigator.navigate(SubjectScreenRouteDestination(navArgs = navArg))
+        }
+    }, onTaskCardClick = { taskId ->
+
+            val navArg = TaskScreenNavArgs(taskId = taskId, subjectId = null)
+            navigator.navigate(TaskScreenRouteDestination(navArgs = navArg))
+
+    }, onStartSessionButtonClick ={
+            navigator.navigate(SessionScreenRouteDestination())
+    }
+    )
+}
 
 
 @Composable
-fun DashBoardScreen() {
+private fun DashBoardScreen(
+    onSubjectCardClick: (Int?) -> Unit,
+    onTaskCardClick: (Int?) -> Unit,
+    onStartSessionButtonClick: () -> Unit
+
+) {
 
     val subjecListt = listOf(
         Subject("English", 10f, Subject.subjectCardColors[0], subjectId = 0),
@@ -168,11 +203,12 @@ fun DashBoardScreen() {
                 SubjectCardsSection(
                     modifier = Modifier.fillMaxWidth(),
                     subjectList = subjecListt,
+                    onSubjectCardClick = onSubjectCardClick
                 )
             }
             item{
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = onStartSessionButtonClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 48.dp, vertical = 20.dp)
@@ -186,7 +222,7 @@ fun DashBoardScreen() {
                         "Click the + button in subject screen to add new task.",
                tasks = tasklist,
                onCheckBoxClick = {},
-               onTaskCardClick = {}
+               onTaskCardClick = onTaskCardClick
             )
             item {
                 Spacer(modifier = Modifier.height(20.dp))
@@ -247,6 +283,7 @@ private fun SubjectCardsSection(
     modifier: Modifier,
     subjectList:List<Subject>,
     emptyListText:String = "You don't have any subjects.\n Click the + button to add new subject.",
+    onSubjectCardClick: (Int?) -> Unit
 ){
 
     var isAddSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
@@ -307,7 +344,7 @@ private fun SubjectCardsSection(
                     SubjectCard(
                         subjectName = subject.name,
                         gradientColors =subject.colors,
-                        onClick = {}
+                        onClick = {onSubjectCardClick(subject.subjectId)}
                     )
             }
         }
