@@ -3,6 +3,7 @@ package com.music.smartstudy
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.ui.graphics.toArgb
 import com.music.smartstudy.domain.model.Session
 import com.music.smartstudy.domain.model.Subject
 import com.music.smartstudy.domain.model.Task
@@ -10,7 +11,10 @@ import com.music.smartstudy.presentation.NavGraph
 import com.music.smartstudy.presentation.NavGraphs
 import com.music.smartstudy.presentation.theme.SmartStudyTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,11 +27,11 @@ class MainActivity : ComponentActivity() {
 }
 
 val subjecListt = listOf(
-    Subject("English", 10f, Subject.subjectCardColors[0], subjectId = 0),
-    Subject("Math", 10f, Subject.subjectCardColors[1],subjectId = 0),
-    Subject("Physics", 10f, Subject.subjectCardColors[2],subjectId = 0),
-    Subject("Chemistry", 10f, Subject.subjectCardColors[4],subjectId = 0),
-    Subject("Biology", 10f, Subject.subjectCardColors[3],subjectId = 0)
+    Subject("English", 10f, Subject.subjectCardColors[0].map{it.toArgb()}, subjectId = 0),
+    Subject("Math", 10f, Subject.subjectCardColors[1].map{it.toArgb()},subjectId = 0),
+    Subject("Physics", 10f, Subject.subjectCardColors[2].map{it.toArgb()},subjectId = 0),
+    Subject("Chemistry", 10f, Subject.subjectCardColors[4].map{it.toArgb()},subjectId = 0),
+    Subject("Biology", 10f, Subject.subjectCardColors[3].map{it.toArgb()},subjectId = 0)
 )
 
 

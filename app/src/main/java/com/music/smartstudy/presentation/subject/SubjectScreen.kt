@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.music.smartstudy.domain.model.Subject
 import com.music.smartstudy.presentation.Task.TaskScreenNavArgs
 import com.music.smartstudy.presentation.components.AddSubjectDialog
@@ -48,6 +49,7 @@ import com.music.smartstudy.presentation.components.DeleteDialog
 import com.music.smartstudy.presentation.components.studySessionList
 import com.music.smartstudy.presentation.components.taskList
 import com.music.smartstudy.presentation.destinations.TaskScreenRouteDestination
+import com.music.smartstudy.presentation.session.SessionViewModel
 import com.music.smartstudy.sessions
 import com.music.smartstudy.tasks
 import com.ramcosta.composedestinations.annotation.Destination
@@ -64,6 +66,9 @@ data class SubjectScreenNavArgs(
 fun SubjectScreenRoute(
     navigator: DestinationsNavigator
 ) {
+
+    val viewModel: SubjectViewModel = hiltViewModel()
+
     SubjectScreen(
         onBackButtonClick = {navigator.navigateUp()},
         onAddTaskButtonClick = {

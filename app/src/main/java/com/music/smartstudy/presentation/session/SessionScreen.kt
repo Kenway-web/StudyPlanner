@@ -35,9 +35,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.music.smartstudy.presentation.components.DeleteDialog
 import com.music.smartstudy.presentation.components.SubjectListBottomSheet
 import com.music.smartstudy.presentation.components.studySessionList
+import com.music.smartstudy.presentation.dashboard.DashBoardViewModel
 import com.music.smartstudy.sessions
 import com.music.smartstudy.subjecListt
 import com.ramcosta.composedestinations.annotation.Destination
@@ -51,6 +53,7 @@ import kotlinx.coroutines.launch
 fun SessionScreenRoute(
     navigator: DestinationsNavigator
 ){
+    val viewModel: SessionViewModel = hiltViewModel()
     SessionScreen(
         onBackButtonClick = { navigator.navigateUp() }
     )
