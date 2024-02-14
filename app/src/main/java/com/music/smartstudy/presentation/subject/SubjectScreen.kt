@@ -41,6 +41,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.music.smartstudy.domain.model.Subject
 import com.music.smartstudy.presentation.Task.TaskScreenNavArgs
 import com.music.smartstudy.presentation.components.AddSubjectDialog
@@ -68,8 +69,11 @@ fun SubjectScreenRoute(
 ) {
 
     val viewModel: SubjectViewModel = hiltViewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     SubjectScreen(
+        state = state,
+        onEvent = viewModel::onEvent,
         onBackButtonClick = {navigator.navigateUp()},
         onAddTaskButtonClick = {
             val navArg = TaskScreenNavArgs(taskId = null, subjectId = -1)
@@ -86,6 +90,8 @@ fun SubjectScreenRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SubjectScreen(
+    state: SubjectState,
+    onEvent: (SubjectEvent) -> Unit,
     onBackButtonClick: () -> Unit,
     onAddTaskButtonClick:() -> Unit,
     onTaskCardClick:(Int?) -> Unit
@@ -103,19 +109,17 @@ private fun SubjectScreen(
     var isDeleteSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDeleteSessionDialogOpen by rememberSaveable { mutableStateOf(false) }
 
-    var subjectName by remember { mutableStateOf("") }
-    var goalHours by remember { mutableStateOf("") }
-    var selectedColor by remember { mutableStateOf(Subject.subjectCardColors.random()) }
 
     AddSubjectDialog(isOpen = isEditSubjectDialogOpen,
-        subjectName = subjectName,
-        goalHours = goalHours,
-        onSubjectNameChange = { subjectName = it },
-        onGoalHoursChange = { goalHours = it },
-        selectedColor = selectedColor,
-        onColorChange = { selectedColor = it },
+        subjectName = state.subjectName,
+        goalHours = state.goalStudyHours,
+        onSubjectNameChange = { onEvent(SubjectEvent.OnSubjectNameChange(it)) },
+        onGoalHoursChange = { onEvent(SubjectEvent.OnGoalStudyHoursChange(it)) },
+        selectedColor = state.subjectCardColors,
+        onColorChange = { onEvent(SubjectEvent.OnSubjectCardColorChange(it)) },
         onDismissRequest = { isEditSubjectDialogOpen = false },
         onConfirmButtonClick = {
+            onEvent(SubjectEvent.UpdateSubject)
             isEditSubjectDialogOpen = false
         })
 
@@ -123,18 +127,25 @@ private fun SubjectScreen(
         title = "Delete Subject?",
         bodyText = "Are you sure, you want to delete this subject? All related " + "tasks and study sessions will be permanently removed. This action can not be undone",
         onDismissRequest = { isDeleteSubjectDialogOpen = false },
-        onConfirmButtonClick = { isDeleteSubjectDialogOpen = false })
+        onConfirmButtonClick = {
+            onEvent(SubjectEvent.DeleteSubject)
+            isDeleteSubjectDialogOpen = false }
+    )
 
     DeleteDialog(isOpen = isDeleteSessionDialogOpen,
         title = "Delete Session?",
         bodyText = "Are you sure, you want to delete this session? Your studied hours will be reduced " + "by this session time. This action can not be undone.",
         onDismissRequest = { isDeleteSessionDialogOpen = false },
-        onConfirmButtonClick = { isDeleteSessionDialogOpen = false })
+        onConfirmButtonClick = {
+            onEvent(SubjectEvent.DeleteSession)
+            isDeleteSessionDialogOpen = false
+        })
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            SubjectScreenTopBar(title = "English",
+            SubjectScreenTopBar(
+                title = state.subjectName,
                 onBackButtonClick = onBackButtonClick,
                 onDeleteButtonClick = { isDeleteSubjectDialogOpen = true },
                 onEditButtonClick = { isEditSubjectDialogOpen = true },
@@ -154,15 +165,17 @@ private fun SubjectScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    studiedHours = "10",
-                    goalHours = "15",
-                    progress = 0.75f
+                    studiedHours = state.goalStudyHours,
+                    goalHours = state.studiedHours.toString(),
+                    progress = state.progress
                 )
             }
             taskList(sectionTitle = "UPCOMING TASKS",
                 emptyListText = "You don't have any upcoming tasks.\n " + "Click the + button to add new task.",
-                tasks = tasks,
-                onCheckBoxClick = {},
+                tasks = state.upcomingTask,
+                onCheckBoxClick = {
+                                  onEvent(SubjectEvent.OnTaskIsCompleteChange(it))
+                },
                 onTaskCardClick = onTaskCardClick
             )
             item {
@@ -170,8 +183,8 @@ private fun SubjectScreen(
             }
             taskList(sectionTitle = "COMPLETED TASKS",
                 emptyListText = "You don't have any completed tasks.\n " + "Click the check box on completion of task.",
-                tasks = tasks,
-                onCheckBoxClick = {},
+                tasks = state.completedTask,
+                onCheckBoxClick = {onEvent(SubjectEvent.OnTaskIsCompleteChange(it))},
                 onTaskCardClick = onTaskCardClick
             )
             item {
@@ -179,8 +192,12 @@ private fun SubjectScreen(
             }
             studySessionList(sectionTitle = "RECENT STUDY SESSIONS",
                 emptyListText = "You don't have any recent study sessions.\n " + "Start a study session to begin recording your progress.",
-                sessions = sessions,
-                onDeleteIconClick = { isDeleteSessionDialogOpen = true })
+                sessions = state.recentSession,
+                onDeleteIconClick = {
+                    isDeleteSessionDialogOpen = true
+                    onEvent(SubjectEvent.OnDeleteSessionButtonClick(it))
+                }
+            )
         }
     }
 }
