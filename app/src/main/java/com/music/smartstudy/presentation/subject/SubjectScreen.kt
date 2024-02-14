@@ -24,10 +24,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,8 +56,11 @@ import com.music.smartstudy.presentation.destinations.TaskScreenRouteDestination
 import com.music.smartstudy.presentation.session.SessionViewModel
 import com.music.smartstudy.sessions
 import com.music.smartstudy.tasks
+import com.music.smartstudy.util.SnackBarEvent
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 
 data class SubjectScreenNavArgs(
@@ -74,6 +80,7 @@ fun SubjectScreenRoute(
     SubjectScreen(
         state = state,
         onEvent = viewModel::onEvent,
+        snackBarEvent = viewModel.snackBarEventFlow,
         onBackButtonClick = {navigator.navigateUp()},
         onAddTaskButtonClick = {
             val navArg = TaskScreenNavArgs(taskId = null, subjectId = -1)
@@ -92,6 +99,7 @@ fun SubjectScreenRoute(
 private fun SubjectScreen(
     state: SubjectState,
     onEvent: (SubjectEvent) -> Unit,
+    snackBarEvent: SharedFlow<SnackBarEvent>,
     onBackButtonClick: () -> Unit,
     onAddTaskButtonClick:() -> Unit,
     onTaskCardClick:(Int?) -> Unit
@@ -109,6 +117,23 @@ private fun SubjectScreen(
     var isDeleteSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDeleteSessionDialogOpen by rememberSaveable { mutableStateOf(false) }
 
+
+    val snackBarHostState  = remember { SnackbarHostState() }
+
+
+    // in order to run non composable fun and dun that require coroutine.
+    LaunchedEffect(key1 = true) {
+        snackBarEvent.collectLatest { event ->
+            when(event) {
+                is SnackBarEvent.ShowSnackBar -> {
+                    snackBarHostState.showSnackbar(
+                        message = event.message,
+                        duration = event.duration
+                    )
+                }
+            }
+        }
+    }
 
     AddSubjectDialog(isOpen = isEditSubjectDialogOpen,
         subjectName = state.subjectName,
@@ -142,6 +167,7 @@ private fun SubjectScreen(
         })
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState)},
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             SubjectScreenTopBar(
