@@ -121,20 +121,27 @@ private fun SubjectScreen(
     val snackBarHostState  = remember { SnackbarHostState() }
 
 
-    // in order to run non composable fun and dun that require coroutine.
+    // in order to run non composable fun and Fun that require coroutine.
     LaunchedEffect(key1 = true) {
         snackBarEvent.collectLatest { event ->
-            when(event) {
+            when (event) {
                 is SnackBarEvent.ShowSnackBar -> {
                     snackBarHostState.showSnackbar(
                         message = event.message,
                         duration = event.duration
                     )
                 }
+
+                SnackBarEvent.NavigateUp -> {
+                    onBackButtonClick()
+                }
             }
         }
     }
 
+    LaunchedEffect(key1 = state.studiedHours, key2 = state.goalStudyHours) {
+        onEvent(SubjectEvent.UpdateProgress)
+    }
     AddSubjectDialog(isOpen = isEditSubjectDialogOpen,
         subjectName = state.subjectName,
         goalHours = state.goalStudyHours,
@@ -154,7 +161,9 @@ private fun SubjectScreen(
         onDismissRequest = { isDeleteSubjectDialogOpen = false },
         onConfirmButtonClick = {
             onEvent(SubjectEvent.DeleteSubject)
-            isDeleteSubjectDialogOpen = false }
+            isDeleteSubjectDialogOpen = false
+        }
+
     )
 
     DeleteDialog(isOpen = isDeleteSessionDialogOpen,
@@ -278,7 +287,10 @@ private fun SubjectScreenTopBar(
 
 @Composable
 private fun SubjectOverviewSection(
-    modifier: Modifier, studiedHours: String, goalHours: String, progress: Float
+    modifier: Modifier,
+    studiedHours: String,
+    goalHours: String,
+    progress: Float
 ) {
     val percentageProgress = remember(progress) {
         (progress * 100).toInt().coerceIn(0, 100)

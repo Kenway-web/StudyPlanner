@@ -14,6 +14,7 @@ import com.music.smartstudy.presentation.navArgs
 import com.music.smartstudy.util.SnackBarEvent
 import com.music.smartstudy.util.toHours
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -69,8 +71,7 @@ class SubjectViewModel  @Inject constructor(
 
     fun onEvent(event: SubjectEvent){
         when(event){
-            SubjectEvent.DeleteSession -> TODO()
-            SubjectEvent.DeleteSubject -> TODO()
+            SubjectEvent.DeleteSession -> {}
             is SubjectEvent.OnDeleteSessionButtonClick -> TODO()
             is SubjectEvent.OnGoalStudyHoursChange -> {
                 _state.update {
@@ -89,6 +90,16 @@ class SubjectViewModel  @Inject constructor(
             }
             is SubjectEvent.OnTaskIsCompleteChange -> TODO()
             SubjectEvent.UpdateSubject -> updateSubject()
+            SubjectEvent.UpdateProgress -> {
+                val goalStudyHours = state.value.goalStudyHours.toFloatOrNull()?:1f
+                _state.update {
+                    it.copy(
+                       progress =  (state.value.studiedHours/goalStudyHours).coerceIn(0f,1f)
+                    )
+                }
+            }
+
+            SubjectEvent.DeleteSubject -> deleteSubject()
         }
     }
 
@@ -96,6 +107,7 @@ class SubjectViewModel  @Inject constructor(
         viewModelScope.launch {
 
             try {
+
                 subjectRepository.upsertSubject(
                     subject = Subject(
                         subjectId = state.value.currentSubjectId,
@@ -136,6 +148,35 @@ class SubjectViewModel  @Inject constructor(
                   )
                }
             }
+        }
+    }
+
+
+    private fun deleteSubject(){
+        viewModelScope.launch {
+
+         try {
+             val currentSubjectId = state.value.currentSubjectId
+             if(currentSubjectId!=null){
+                 withContext(Dispatchers.IO){
+                     subjectRepository.deleteSubject(subjectId = currentSubjectId)
+                 }
+                 _snackBarEventFlow.emit(
+                     SnackBarEvent.ShowSnackBar("Subject Deleted Successfully.")
+                 )
+                 _snackBarEventFlow.emit(SnackBarEvent.NavigateUp)
+             }else{
+                 _snackBarEventFlow.emit(
+                     SnackBarEvent.ShowSnackBar("No Subject to delete")
+                 )
+             }
+         }
+         catch (e:Exception){
+             _snackBarEventFlow.emit(
+                 SnackBarEvent.ShowSnackBar(message = "Subject Not Deleted. ${e.message}")
+             )
+         }
+
         }
     }
 }
