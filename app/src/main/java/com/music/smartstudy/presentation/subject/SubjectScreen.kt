@@ -77,20 +77,18 @@ fun SubjectScreenRoute(
     val viewModel: SubjectViewModel = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    SubjectScreen(
-        state = state,
+    SubjectScreen(state = state,
         onEvent = viewModel::onEvent,
         snackBarEvent = viewModel.snackBarEventFlow,
-        onBackButtonClick = {navigator.navigateUp()},
+        onBackButtonClick = { navigator.navigateUp() },
         onAddTaskButtonClick = {
-            val navArg = TaskScreenNavArgs(taskId = null, subjectId = -1)
+            val navArg = TaskScreenNavArgs(taskId = null, subjectId = state.currentSubjectId)
             navigator.navigate(TaskScreenRouteDestination(navArgs = navArg))
         },
-        onTaskCardClick ={taskId->
+        onTaskCardClick = { taskId ->
             val navArg = TaskScreenNavArgs(taskId = taskId, subjectId = null)
             navigator.navigate(TaskScreenRouteDestination(navArgs = navArg))
-        }
-    )
+        })
 }
 
 
@@ -101,8 +99,8 @@ private fun SubjectScreen(
     onEvent: (SubjectEvent) -> Unit,
     snackBarEvent: SharedFlow<SnackBarEvent>,
     onBackButtonClick: () -> Unit,
-    onAddTaskButtonClick:() -> Unit,
-    onTaskCardClick:(Int?) -> Unit
+    onAddTaskButtonClick: () -> Unit,
+    onTaskCardClick: (Int?) -> Unit
 ) {
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -118,7 +116,7 @@ private fun SubjectScreen(
     var isDeleteSessionDialogOpen by rememberSaveable { mutableStateOf(false) }
 
 
-    val snackBarHostState  = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
 
 
     // in order to run non composable fun and Fun that require coroutine.
@@ -127,8 +125,7 @@ private fun SubjectScreen(
             when (event) {
                 is SnackBarEvent.ShowSnackBar -> {
                     snackBarHostState.showSnackbar(
-                        message = event.message,
-                        duration = event.duration
+                        message = event.message, duration = event.duration
                     )
                 }
 
@@ -176,7 +173,7 @@ private fun SubjectScreen(
         })
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackBarHostState)},
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             SubjectScreenTopBar(
@@ -200,26 +197,28 @@ private fun SubjectScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    studiedHours = state.goalStudyHours,
-                    goalHours = state.studiedHours.toString(),
+                    studiedHours = state.studiedHours.toString(),
+                    goalHours = state.goalStudyHours,
                     progress = state.progress
                 )
             }
-            taskList(sectionTitle = "UPCOMING TASKS",
+            taskList(
+                sectionTitle = "UPCOMING TASKS",
                 emptyListText = "You don't have any upcoming tasks.\n " + "Click the + button to add new task.",
                 tasks = state.upcomingTask,
                 onCheckBoxClick = {
-                                  onEvent(SubjectEvent.OnTaskIsCompleteChange(it))
+                    onEvent(SubjectEvent.OnTaskIsCompleteChange(it))
                 },
                 onTaskCardClick = onTaskCardClick
             )
             item {
                 Spacer(modifier = Modifier.height(20.dp))
             }
-            taskList(sectionTitle = "COMPLETED TASKS",
+            taskList(
+                sectionTitle = "COMPLETED TASKS",
                 emptyListText = "You don't have any completed tasks.\n " + "Click the check box on completion of task.",
                 tasks = state.completedTask,
-                onCheckBoxClick = {onEvent(SubjectEvent.OnTaskIsCompleteChange(it))},
+                onCheckBoxClick = { onEvent(SubjectEvent.OnTaskIsCompleteChange(it)) },
                 onTaskCardClick = onTaskCardClick
             )
             item {
@@ -231,8 +230,7 @@ private fun SubjectScreen(
                 onDeleteIconClick = {
                     isDeleteSessionDialogOpen = true
                     onEvent(SubjectEvent.OnDeleteSessionButtonClick(it))
-                }
-            )
+                })
         }
     }
 }
@@ -245,7 +243,7 @@ private fun SubjectScreenTopBar(
     onDeleteButtonClick: () -> Unit,
     onEditButtonClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
-    onAddTaskButtonIconClick:() -> Unit,
+    onAddTaskButtonIconClick: () -> Unit,
 
     ) {
     LargeTopAppBar(scrollBehavior = scrollBehavior, navigationIcon = {
@@ -287,10 +285,7 @@ private fun SubjectScreenTopBar(
 
 @Composable
 private fun SubjectOverviewSection(
-    modifier: Modifier,
-    studiedHours: String,
-    goalHours: String,
-    progress: Float
+    modifier: Modifier, studiedHours: String, goalHours: String, progress: Float
 ) {
     val percentageProgress = remember(progress) {
         (progress * 100).toInt().coerceIn(0, 100)
@@ -302,11 +297,14 @@ private fun SubjectOverviewSection(
         verticalAlignment = Alignment.CenterVertically
     ) {
         CountCard(
-            modifier = Modifier.weight(1f), headingText = "Goal Study Hours", count = goalHours
+            modifier = Modifier.weight(1f),
+            headingText = "Goal Study Hours",
+            count = goalHours
         )
         Spacer(modifier = Modifier.width(10.dp))
         CountCard(
-            modifier = Modifier.weight(1f), headingText = "Study Hours", count = studiedHours
+            modifier = Modifier.weight(1f),
+            headingText = "Studied Hours", count = studiedHours
         )
         Spacer(modifier = Modifier.width(10.dp))
         Box(

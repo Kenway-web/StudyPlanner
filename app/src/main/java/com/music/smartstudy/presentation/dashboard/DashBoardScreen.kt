@@ -61,12 +61,14 @@ import com.music.smartstudy.sessions
 import com.music.smartstudy.tasks
 import com.music.smartstudy.util.SnackBarEvent
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 
 
-@Destination(start = true)
+@RootNavGraph(start = true)
+@Destination
 @Composable
 fun DashboardScreenRoute(
     navigator: DestinationsNavigator

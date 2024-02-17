@@ -98,8 +98,35 @@ class DashBoardViewModel @Inject constructor(
                     it.copy(subjectName = event.name)
                 }
             }
-            is DashBoardEvent.OnTaskIsCompleteChange -> TODO()
             DashBoardEvent.SaveSubject -> saveSubject()
+            is DashBoardEvent.OnTaskIsCompleteChange -> {
+                updateTask(event.task)
+            }
+        }
+    }
+
+    private fun updateTask(task:Task) {
+        viewModelScope.launch {
+            try {
+
+                taskRepository.upsertTask(
+                    task=task.copy(isComplete = !task.isComplete)
+                )
+                _snackBarEventFlow.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        "Saved in Completed Task."
+                    )
+                )
+            }
+            catch (e:Exception){
+                _snackBarEventFlow.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        "Couldn't update task. ${e.message}",
+                        SnackbarDuration.Long
+
+                    )
+                )
+            }
         }
     }
 

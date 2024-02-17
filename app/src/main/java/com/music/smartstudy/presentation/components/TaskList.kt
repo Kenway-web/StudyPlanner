@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.music.smartstudy.R
 import com.music.smartstudy.domain.model.Task
 import com.music.smartstudy.util.Priority
+import com.music.smartstudy.util.changeMillisToDateString
 
 
 fun LazyListScope.taskList(
@@ -110,7 +111,7 @@ private fun TaskCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${task.dueDate}",
+                    text = task.dueDate.changeMillisToDateString(),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
