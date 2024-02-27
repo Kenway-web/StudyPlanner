@@ -1,13 +1,15 @@
 package com.music.smartstudy
 
+import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.app.ActivityCompat
 import com.music.smartstudy.domain.model.Session
 import com.music.smartstudy.domain.model.Subject
 import com.music.smartstudy.domain.model.Task
-import com.music.smartstudy.presentation.NavGraph
 import com.music.smartstudy.presentation.NavGraphs
 import com.music.smartstudy.presentation.theme.SmartStudyTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
@@ -23,7 +25,21 @@ class MainActivity : ComponentActivity() {
                 DestinationsNavHost(navGraph = NavGraphs.root)
             }
         }
+        requestPermission()
     }
+
+
+    private fun requestPermission(){
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU)
+        {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                0
+            )
+        }
+    }
+
 }
 
 val subjecListt = listOf(
